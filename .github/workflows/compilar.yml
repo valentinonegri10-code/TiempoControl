@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -27,17 +26,26 @@ jobs:
       - name: Extraer proyecto
         run: unzip -q TiempoControlFinal-1.zip
 
-      - name: Corregir compatibilidad Java y Kotlin
+      - name: Corregir código
         run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("TiempoControlFinal/app/src/main/java/com/valen/tiempocontrol/MainActivity.kt")
+          s = p.read_text()
+          s = s.replace('text = "Tu tiempo,\ntu decisión."', 'text = "Tu tiempo,\\ntu decisión."')
+          p.write_text(s)
+          PY
+
           python3 - <<'PY'
           from pathlib import Path
           p = Path("TiempoControlFinal/app/build.gradle.kts")
           s = p.read_text()
-          s = s.replace(
-              '    defaultConfig {',
-              '    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n\n    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n    defaultConfig {',
-              1
-          )
+          if "targetCompatibility = JavaVersion.VERSION_17" not in s:
+              s = s.replace(
+                  "    defaultConfig {",
+                  '    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n    kotlinOptions {\n        jvmTarget = "17"\n    }\n    defaultConfig {',
+                  1
+              )
           p.write_text(s)
           PY
 
