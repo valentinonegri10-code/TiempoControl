@@ -25,7 +25,7 @@ jobs:
       - name: Extraer proyecto
         run: |
           unzip TiempoControlFinal-1.zip
-
+          find . -name "build.gradle.kts" -print
       - name: Compilar aplicación
         run: |
           cd TiempoControlFinal
