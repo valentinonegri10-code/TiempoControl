@@ -24,7 +24,7 @@ jobs:
 
       - name: Extraer proyecto
         run: |
-          unzip TiempoControlFinal.zip
+          unzip TiempoControlFinal-1.zip
 
       - name: Compilar aplicación
         run: |
