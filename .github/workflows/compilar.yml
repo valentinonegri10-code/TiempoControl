@@ -1,15 +1,17 @@
+
 name: Compilar APK
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'TiempoControlFinal.zip'
+      - 'TiempoControlFinal-1.zip'
       - '.github/workflows/compilar.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,9 +25,22 @@ jobs:
           gradle-version: '8.9'
 
       - name: Extraer proyecto
+        run: unzip -q TiempoControlFinal-1.zip
+
+      - name: Corregir compatibilidad Java y Kotlin
         run: |
-          unzip TiempoControlFinal-1.zip
-          find . -name "build.gradle.kts" -print
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("TiempoControlFinal/app/build.gradle.kts")
+          s = p.read_text()
+          s = s.replace(
+              '    defaultConfig {',
+              '    compileOptions {\n        sourceCompatibility = JavaVersion.VERSION_17\n        targetCompatibility = JavaVersion.VERSION_17\n    }\n\n    kotlinOptions {\n        jvmTarget = "17"\n    }\n\n    defaultConfig {',
+              1
+          )
+          p.write_text(s)
+          PY
+
       - name: Compilar aplicación
         run: |
           cd TiempoControlFinal
